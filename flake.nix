@@ -7,7 +7,8 @@
   };
 
   outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+    # 1. System-specific outputs (Packages)
+    (flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
 
@@ -83,15 +84,20 @@
               --add-flags "$out/libexec/dashlane-cli/dist/index.cjs"
           '';
         };
-
-        nixosModules.default = { config, lib, pkgs, ... }: {
-          options.programs.dashlane-cli = {
-            enable = lib.mkEnableOption "Dashlane CLI";
-          };
-          config = lib.mkIf config.programs.dashlane-cli.enable {
-            environment.systemPackages = [ self.packages.${system}.default ];
-          };
+      })
+    )
+    // # 2. System-agnostic outputs (NixOS Modules)
+    {
+      nixosModules.default = { config, lib, pkgs, ... }: {
+        options.programs.dashlane-cli = {
+          enable = lib.mkEnableOption "Dashlane CLI";
         };
-      }
-    );
+
+        config = lib.mkIf config.programs.dashlane-cli.enable {
+          environment.systemPackages = [ 
+            self.packages.${pkgs.system}.default 
+          ];
+        };
+      };
+    };
 }
