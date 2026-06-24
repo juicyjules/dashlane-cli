@@ -109,5 +109,8 @@
         "node": ">=22",
         "yarn": ">=4.2.2"
     },
-    "packageManager": "yarn@4.5.1"
+    "packageManager": "yarn@4.5.1",
+    "resolutions": {
+        "@napi-rs/clipboard-darwin-x64": "1.1.2"
+    }
 }
